@@ -3,14 +3,18 @@ import java.util.*;
 
 public class AnimalHotel {
 
-    ArrayList<Room> guestRooms;//Array list of Room class
-    File roomList;
-    Animal currentAnimalObj;
-    String animal;
+    private ArrayList<Room> guestRooms;
+    private File roomList;
+    private Animal currentAnimalObj;
+    private String animal;
 
     public void start() throws IOException {
 
+        //Object for RoomList.txt
         roomList = new File("RoomList.txt");
+        //If it does not exist it creates a new file, if it exists it does nothing
+        roomList.createNewFile();
+
         guestRooms = new ArrayList<>();
 
         boolean programRunning = true;
@@ -74,6 +78,7 @@ public class AnimalHotel {
     public int mainMenu() {
 
         System.out.println(ConsoleColors.CYAN_ITALIC);
+
         System.out.println("----------------------------------------------------------------------------------------------------------------");
         System.out.println("Welcome to our hotel booking manager");
         System.out.println("\tPlease select a choice");
@@ -108,6 +113,7 @@ public class AnimalHotel {
             System.out.print("\t[?]> ");
             animalChoice = getUserInt();
 
+            //Checks what animal to sign in and saves a string to variable "animal"
             switch (animalChoice) {
 
                 case 1 -> animal = "orca";
@@ -121,6 +127,7 @@ public class AnimalHotel {
                     System.out.println("------------");
                 }
             }
+            //As long as this condition is true the do while loop will repeat itself.
         } while (animalChoice < 1 || animalChoice > 3);
 
         System.out.println("What is your name?");
@@ -138,6 +145,7 @@ public class AnimalHotel {
         System.out.print("\t> ");
         String favoriteFood = getUserString();
 
+        //Switch case that creates an object of the type chosen and assigned to "animal"and putting it to currentAnimalObj, giving the object its parameters by saving strings and using them while creating the object
         switch (animal) {
 
             case "orca" -> currentAnimalObj = new Orca(name, favoriteActivity, favoriteFood);
@@ -147,23 +155,25 @@ public class AnimalHotel {
             case "peregrineFalcon" -> currentAnimalObj = new PeregrineFalcon(name, favoriteActivity, favoriteFood);
         }
 
+        //This while loop will keep running until its broken, and that happens if all rooms are booked and if you assign the currentAnimalObj to a room.
         while (true) {
 
-            int numOfBookedRooms = 0;
+            int numberOfAvailableRooms = 0;
 
             System.out.println("\tAvailable Rooms              Description");
             System.out.println("----------------------------------------------------------------------------------------------------------------");
 
-            //Prints all rooms in the hotel Which are available
+            //Prints all rooms in the hotel which are available, and adds 1 to numberOfAvailableRooms. If all rooms are booked numberOfAvailableRooms = 0, and it will break the while loop
             for (int i = 0; i < guestRooms.size(); i++) {
 
                 if (!guestRooms.get(i).getIsBooked()) {
 
                     System.out.printf("\t[%-1d]%-26s%s\n", (i + 1), guestRooms.get(i).getRoomName(), guestRooms.get(i).describe());
-                    numOfBookedRooms++;
+                    numberOfAvailableRooms++;
                 }
             }
-            if (numOfBookedRooms == 0) {
+            //if there are no available rooms it does not allow the user to book the room.breaks the loop,Otherwise it will allow the user to book the Room.
+            if (numberOfAvailableRooms == 0) {
 
                 System.out.println("There are no available rooms at this point in time");
                 System.out.println("----------------------------------------------------------------------------------------------------------------");
@@ -174,6 +184,7 @@ public class AnimalHotel {
                 System.out.print("\t[?]> ");
                 int userChoice = getUserInt();
 
+                //Checks if the room that the user selected is booked
                 try {
 
                     if (guestRooms.get(userChoice - 1).getIsBooked()) {
@@ -181,6 +192,7 @@ public class AnimalHotel {
                         System.out.println("This room is already booked, please select rooms from list of available rooms");
                         System.out.println("----------------------------------------------------------------------------------------------------------------");
 
+                        //If the selected room is not booked it will add the currentAnimalObj to that selected room and set IsBooked to true(which makes the room booked) and then break the while loop.
                     } else {
 
                         guestRooms.get(userChoice - 1).setGuests(currentAnimalObj);
@@ -204,36 +216,40 @@ public class AnimalHotel {
 
         System.out.println(ConsoleColors.RED_ITALIC);
 
+        boolean run = true;
+
+
         listBookings();
 
+        System.out.println("----------------------------------------------------------------------------------------------------------------");
         System.out.println("Enter the room number to Checking out");
         System.out.println("-------------------------------------");
         System.out.print("\t[?]> ");
         int userChoice = getUserInt();
 
+        //Loops through the guest rooms and checks if it is booked, and if the userChoice = the room number. If true, removes the guest from that room by setting it to null and setting IsBooked to false(room is available)
         for (Room guestRoom : guestRooms) {
 
-            if (guestRoom.getIsBooked()) {
+            if (guestRoom.getIsBooked() && userChoice == guestRoom.getRoomNumber()) {
 
-                if (userChoice == guestRoom.getRoomNumber()) {
+                System.out.println(guestRoom.getGuests().getName() + " has been checked out");
+                System.out.println("------------------------------");
 
-                    System.out.println(guestRoom.getGuests().getName() + " has been checked out");
-                    System.out.println("------------------------------");
+                guestRoom.setGuests(null);
+                guestRoom.setIsBooked(false);
 
-                    guestRoom.setGuests(null);
-                    guestRoom.setIsBooked(false);
-                }
             }
         }
     }
 
-    //Prints all the current bookings
+    //Prints all the current bookings which are booked
     public void listBookings() {
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
         System.out.println("Room number                Name");
         System.out.println("--------------------------------------");
 
+        //Loops through all rooms and checks if IsBooked is true, and prints all the rooms that it applies to.
         for (Room guestRoom : guestRooms) {
 
             if (guestRoom.getIsBooked()) {
@@ -243,7 +259,7 @@ public class AnimalHotel {
         }
     }
 
-    //
+    //Uses the listBookings method to print all bookings, then allows the user to change any of the information about guests.
     public void editBookings() {
 
         System.out.println(ConsoleColors.YELLOW_ITALIC);
@@ -256,6 +272,7 @@ public class AnimalHotel {
         System.out.print("\t[?]> ");
         int userChoice1 = getUserInt();
 
+        //Loops through all rooms and compares userChoice1 to all the room numbers, if any of them match it will proceed to ask what you want to change
         for (Room guestRoom : guestRooms) {
 
             if (userChoice1 == guestRoom.getRoomNumber()) {
@@ -313,46 +330,62 @@ public class AnimalHotel {
         }
     }
 
-    //
+    //Uses the listBookings method to print all bookings, then allows the user to choose a room and see more details about this booking
     public void individualBookingDetails() {
 
         System.out.println(ConsoleColors.PURPLE_ITALIC);
 
-        listBookings();
+        int numberOfAvailableRooms = 0;
 
-        System.out.println("----------------------------------------------------------------------------------------------------------------");
-        System.out.println("Enter the room number for booking details");
-        System.out.println("-----------------------------------------");
-        System.out.print("\t[?]> ");
-        int userChoice = getUserInt();
-
+        //Loops through all rooms and adds 1 to numberOfAvailableRooms if IsBooked = false(available)
         for (Room guestRoom : guestRooms) {
 
-            if (guestRoom.getIsBooked() && userChoice == guestRoom.getRoomNumber()) {
+            if (!guestRoom.getIsBooked()) {
 
-                System.out.println("Name                   Favorite Activity                   Favorite Food");
-                System.out.println("------------------------------------------------------------------------");
-                System.out.printf("\t%-23s%-36s%s\n\n", guestRoom.getGuests().getName(), guestRoom.getGuests().getFavoriteActivity(), guestRoom.getGuests().getFavoriteFood());
+                numberOfAvailableRooms++;
+            }
+        }
+        //If statement prints there are no guests if numberOfAvailableRooms = 6, if false it will proceed into else statement
+        if (numberOfAvailableRooms == 6) {
 
-                System.out.println("Room Number            Description");
-                System.out.println("-------------------------------------------------------------------------------------------------------");
-                System.out.printf("\t[%d]%92s\n", guestRoom.getRoomNumber(), guestRoom.describe());
-            } else {
+            System.out.println("There are no guests at this point in time");
+        } else {
 
+            listBookings();
+
+            System.out.println("----------------------------------------------------------------------------------------------------------------");
+            System.out.println("Enter the room number for booking details");
+            System.out.println("-----------------------------------------");
+            System.out.print("\t[?]> ");
+            int userChoice = getUserInt();
+
+            //For loop compares userChoice to room numbers in all the booked room, if true, it will display more details about that specific booking
+            for (Room guestRoom : guestRooms) {
+
+                if (guestRoom.getIsBooked() && userChoice == guestRoom.getRoomNumber()) {
+
+                    System.out.println("Name                   Favorite Activity                   Favorite Food");
+                    System.out.println("------------------------------------------------------------------------");
+                    System.out.printf("\t%-23s%-36s%s\n\n", guestRoom.getGuests().getName(), guestRoom.getGuests().getFavoriteActivity(), guestRoom.getGuests().getFavoriteFood());
+
+                    System.out.println("Room Number            Description");
+                    System.out.println("-------------------------------------------------------------------------------------------------------");
+                    System.out.printf("\t[%d]%92s\n", guestRoom.getRoomNumber(), guestRoom.describe());
+                }
             }
         }
     }
 
-    //
+    //Allows the user to enter a character or a string to filter through the list of bookings by name, and show which bookings contain the "filter".
     public void filterBookings() {
 
         System.out.println(ConsoleColors.LIGHT_PINK);
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
 
-
         int bookedGuests = 0;
 
+        //For loop that checks if there are any booked rooms.
         for (Room guestRoom : guestRooms) {
 
             if (guestRoom.getIsBooked()) {
@@ -361,6 +394,7 @@ public class AnimalHotel {
             }
         }
 
+        // If there are any guests(bookedGuests != 0) then it filters names with the user input and give the list otherwise,it  displays there are are no guests
         if (bookedGuests != 0) {
 
             System.out.println("Enter what you would like to filter the names by");
@@ -370,6 +404,7 @@ public class AnimalHotel {
             System.out.println("These are all guests that has [" + userChoice + "] in their name");
             System.out.println("----------------------------------------------------------------");
 
+            //If any of the guests names contains what user waned to filter by, it will display them.
             for (Room guestRoom : guestRooms) {
 
                 if (guestRoom.getIsBooked() && guestRoom.getGuests().getName().contains(userChoice)) {
@@ -378,15 +413,18 @@ public class AnimalHotel {
                 }
             }
         } else {
+
             System.out.println("There are no guests booked at this point in time");
         }
     }
 
-    //
+    //If selected this method saves all the rooms with guests in it by calling saveToFile(), and writes the down to a txt document, and then exits the program.
     public boolean exitProgram() throws IOException {
 
-        FileWriter fw = new FileWriter(roomList);
+        //Creates a FileWriter, that write to file roomList
+        new FileWriter(roomList);
 
+        //Checks if any rooms are booked, if true it will save all of those rooms and guests into a txt document by splitting all parameters with "|". And then returning false to programRunning, which exits the program.
         for (Room guestRoom : guestRooms) {
 
             if (guestRoom.getIsBooked()) {
@@ -400,31 +438,41 @@ public class AnimalHotel {
         return false;
     }
 
-    //
+    //Creates a file with same name as the one created before, then writes to the same file and then closes the file
     public static void saveToFile(String fileName, String text, boolean append) throws IOException {
 
+        //Creating an object of a file
         File file = new File(fileName);
 
+        //FileWriter that writes to file(file), in this case RoomList.txt
         FileWriter fw = new FileWriter(file, append);
 
+        //Writes down "text" which is the saved rooms.
         fw.write(text);
 
+        //Closes the FileWriter
         fw.close();
     }
 
-    //
+    //Loads all the information from the txt document, and saves it in different variables, and uses them to create the objects that were saved to the txt document.
     public ArrayList<Room> loadToList(String fileName) throws FileNotFoundException {
 
+        //Creates a new file and sets it as RoomList.txt
         File file = new File(fileName);
 
+        //Creates a scanner that scans our selected file (RoomList.txt)
         Scanner myScanner = new Scanner(file);
 
+        //An array list of the class called Room, Where all of our saved rooms will be to from RoomList.txt
         ArrayList<Room> guests = new ArrayList<>();
 
+        //Checks if the file length is bigger than 1, if true it will start to upload
         if (file.length() > 1) {
 
+            //As long as scanner has a next line, it will keep run the while loop
             while (myScanner.hasNextLine()) {
 
+                //Creates a String variable that contains one of the lines in text document, and then splits the string by each "|" adn saves all the elements into an array
                 String line = myScanner.nextLine();
 
                 String[] items = line.split("\\|");
@@ -436,8 +484,10 @@ public class AnimalHotel {
                 String animalActivity = items[4];
                 String animalFood = items[5];
 
+                //Creates a new animal object with all the parameters that goes into an animal
                 Animal newObject = new Animal(animalName, animalActivity, animalFood);
 
+                //If statement that depending on the name, it creates a new room for that room type and sets its guest that was created above "newObject"
                 if (roomName.equals("MarineRoom1")) {
                     Room MarineRoom1 = new Room(roomName, roomNumber, isBooked, newObject);
                     guests.add(MarineRoom1);
@@ -468,13 +518,15 @@ public class AnimalHotel {
         return guests;
     }
 
-    //
+    //Replaces created rooms with the same room but with a guest if saved into "RoomList.txt"
     public void replaceRooms() throws FileNotFoundException {
 
+        //Loops through array returned from loadToList();
         for (int i = 0; i < loadToList("RoomList.txt").size(); i++) {
 
             for (Room guestRoom : guestRooms) {
 
+                //Compares the room numbers from that array and the on created at the start of the program, if they match it will set the same guest in currentRoom to the room in guestRoom with same room number, and also setting IsBooked true.
                 if (loadToList("RoomList.txt").get(i).getRoomNumber() == guestRoom.getRoomNumber()) {
 
                     Room currentRoom = loadToList("RoomList.txt").get(i);
@@ -486,7 +538,7 @@ public class AnimalHotel {
         }
     }
 
-    //
+    //Allows the user to write a string into the program.
     public static String getUserString() {
 
         Scanner myScanner = new Scanner(System.in);
@@ -494,7 +546,7 @@ public class AnimalHotel {
         return myScanner.nextLine();
     }
 
-    //
+    //Allows the user to write an int into the program, and if it is not an int says faulty input and asks for one again.
     public static int getUserInt() {
 
         Scanner myScanner = new Scanner(System.in);

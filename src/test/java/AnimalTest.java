@@ -2,6 +2,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+//This class is used to test certain getters to see if they do what we expect
 class AnimalTest {
 
     @Test

@@ -1,3 +1,4 @@
+//This class gives us the possibility to use coloured text in output
 public class ConsoleColors {
     public static final String RESET = "\033[0m";  // Text Reset
 
