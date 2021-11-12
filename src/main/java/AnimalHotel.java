@@ -218,7 +218,6 @@ public class AnimalHotel {
 
         boolean run = true;
 
-
         listBookings();
 
         System.out.println("----------------------------------------------------------------------------------------------------------------");
